@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIM WARMUP | PRO BIOMETRICS</title>
+    <style>
+        :root {
+            --bg: #0a0a0c;
+            --accent: #00ff88;
+            --secondary: #00e1ff;
+            --text: #e0e0e0;
+            --panel: #16161a;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* --- Header & Lang --- */
+        header {
+            width: 100%;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--panel);
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .lang-switch button {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            cursor: pointer;
+            padding: 5px 10px;
+            margin-left: 5px;
+            border-radius: 4px;
+            transition: 0.3s;
+        }
+
+        .lang-switch button:hover {
+            background: var(--accent);
+            color: black;
+        }
+
+        /* --- Main UI --- */
+        .container {
+            max-width: 800px;
+            width: 90%;
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .timer-display {
+            font-size: 80px;
+            font-weight: bold;
+            color: var(--accent);
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+            margin: 20px 0;
+        }
+
+        .exercise-card {
+            background: var(--panel);
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid #333;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .exercise-anim {
+            width: 150px;
+            height: 150px;
+            border: 3px solid var(--secondary);
+            border-radius: 50%;
+            margin-bottom: 20px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* --- Animations for Exercises --- */
+        .anim-eye { animation: scan 2s infinite linear; background: radial-gradient(circle, var(--accent) 10%, transparent 10%); background-size: 30px 30px; }
+        @keyframes scan { 
+            0% { background-position: 0 0; } 
+            25% { background-position: 100% 0; }
+            50% { background-position: 100% 100%; }
+            75% { background-position: 0 100%; }
+            100% { background-position: 0 0; }
+        }
+
+        .anim-fingers::before {
+            content: ''; width: 40px; height: 40px; background: var(--accent); border-radius: 50%;
+            animation: tap 0.5s infinite alternate;
+        }
+        @keyframes tap { from { transform: translateY(-20px); } to { transform: translateY(20px); } }
+
+        /* --- Mini Game --- */
+        #game-area {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+        .target {
+            position: absolute; width: 40px; height: 40px; background: var(--accent);
+            border-radius: 50%; pointer-events: auto; cursor: crosshair;
+            box-shadow: 0 0 15px var(--accent);
+        }
+
+        /* --- Buttons --- */
+        .btn {
+            background: var(--accent);
+            color: black;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+        }
+
+        .btn:hover { transform: scale(1.05); filter: brightness(1.2); }
+
+        /* --- Footer --- */
+        footer {
+            margin-top: 50px;
+            padding: 30px;
+            background: var(--panel);
+            width: 100%;
+            text-align: center;
+        }
+
+        .links a { color: var(--secondary); text-decoration: none; margin: 0 15px; font-weight: bold; }
+        .links a:hover { text-decoration: underline; }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">AIMERBIOMETRICS <span style="color:var(--accent)">v1.0</span></div>
+    <div class="lang-switch">
+        <button onclick="setLang('ru')">RU</button>
+        <button onclick="setLang('ua')">UA</button>
+        <button onclick="setLang('en')">EN</button>
+        <button onclick="setLang('tr')">TR</button>
+    </div>
+</header>
+
+<div id="game-area"></div>
+
+<div class="container">
+    <div id="status-text" style="color: var(--secondary); font-weight: bold;">READY TO CALIBRATE?</div>
+    <div class="timer-display" id="timer">00:00</div>
+    
+    <div class="exercise-card">
+        <div id="anim-box" class="exercise-anim"></div>
+        <h2 id="ex-title">Welcome</h2>
+        <p id="ex-desc">Click START for a 100% full biometric warmup sequence.</p>
+        <button class="btn" id="main-btn" onclick="startWarmup()">START</button>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <p id="score-text">Targets Hit: 0</p>
+        <small>(Warmup your aim while waiting: hit the green balls!)</small>
+    </div>
+</div>
+
+<footer>
+    <div class="links">
+        <a href="https://github.com/Adiru3" target="_blank">GitHub</a>
+        <a href="https://adiru3.github.io/Donate/" target="_blank">Donate (Crypto, Ko-fi, Steam)</a>
+    </div>
+    <p style="font-size: 12px; color: #555; margin-top: 15px;">Developed for high-performance athletes.</p>
+</footer>
+
+<script>
+    const translations = {
+        ru: {
+            ready: "ГОТОВ К КАЛИБРОВКЕ?",
+            start: "НАЧАТЬ",
+            prepare: "ПРИГОТОВЬТЕСЬ...",
+            score: "Сбито целей: ",
+            steps: [
+                {t: "Near-Far Toggle", d: "Фокус: кончик носа -> дальний объект. Тренировка хрусталика.", s: 30, a: "anim-eye"},
+                {t: "Peripheral Awareness", d: "Смотри в центр, осознавай края комнаты. Режим охотника.", s: 30, a: "anim-eye"},
+                {t: "Rapid Saccades", d: "Быстро переводи взгляд по углам монитора.", s: 60, a: "anim-eye"},
+                {t: "Finger Piano", d: "Имитируй быструю игру на пианино на столе. Независимость пальцев.", s: 45, a: "anim-fingers"},
+                {t: "Wrist Wave", d: "Разминка кистей 'волной' и вращения. Плавность.", s: 45, a: "anim-fingers"},
+                {t: "Tendon Gliding", d: "Когти -> Кулак -> Г-образная ладонь. Растяжка.", s: 60, a: "anim-fingers"},
+                {t: "Shoulder Squeeze", d: "Сведи лопатки, опусти плечи. Убираем зажимы.", s: 30, a: "anim-fingers"},
+                {t: "Neural Sync", d: "Касайся большим пальцем остальных на скорости. Синхрон СPU.", s: 30, a: "anim-fingers"},
+                {t: "Explosive Tension", d: "Резко сожми кулаки на 1с и выброси пальцы. Оверклок.", s: 30, a: "anim-fingers"}
+            ]
+        },
+        ua: {
+            ready: "ГОТОВИЙ ДО КАЛІБРУВАННЯ?",
+            start: "ПОЧАТИ",
+            prepare: "ПРИГОТУЙТЕСЯ...",
+            score: "Збито цілей: ",
+            steps: [
+                {t: "Near-Far Toggle", d: "Фокус: кінчик носа -> далекий об'єкт. Тренування кришталика.", s: 30, a: "anim-eye"},
+                {t: "Peripheral Awareness", d: "Дивись у центр, усвідомлюй краї кімнати.", s: 30, a: "anim-eye"},
+                {t: "Rapid Saccades", d: "Швидко переводи погляд по кутах монітора.", s: 60, a: "anim-eye"},
+                {t: "Finger Piano", d: "Імітуй швидку гру на піаніно. Незалежність пальців.", s: 45, a: "anim-fingers"},
+                {t: "Wrist Wave", d: "Розминка кистей 'хвилею'. Плавність.", s: 45, a: "anim-fingers"},
+                {t: "Tendon Gliding", d: "Кігті -> Кулак -> Г-подібна ладонь. Розтяжка.", s: 60, a: "anim-fingers"},
+                {t: "Shoulder Squeeze", d: "Зведи лопатки, опусти плечі.", s: 30, a: "anim-fingers"},
+                {t: "Neural Sync", d: "Торкайся великим пальцем інших на швидкості.", s: 30, a: "anim-fingers"},
+                {t: "Explosive Tension", d: "Різко стисни кулаки та викинь пальці.", s: 30, a: "anim-fingers"}
+            ]
+        },
+        en: {
+            ready: "READY TO CALIBRATE?",
+            start: "START",
+            prepare: "PREPARE...",
+            score: "Targets Hit: ",
+            steps: [
+                {t: "Near-Far Toggle", d: "Focus: finger tip -> far object. Lens training.", s: 30, a: "anim-eye"},
+                {t: "Peripheral Awareness", d: "Look center, perceive edges. Hunter mode.", s: 30, a: "anim-eye"},
+                {t: "Rapid Saccades", d: "Scan monitor corners rapidly.", s: 60, a: "anim-eye"},
+                {t: "Finger Piano", d: "Tap fingers independently on table. Click speed.", s: 45, a: "anim-fingers"},
+                {t: "Wrist Wave", d: "Wave and rotate wrists. Smoothness.", s: 45, a: "anim-fingers"},
+                {t: "Tendon Gliding", d: "Claws -> Fist -> L-shape. Stretch.", s: 60, a: "anim-fingers"},
+                {t: "Shoulder Squeeze", d: "Squeeze blades, drop shoulders. Latency fix.", s: 30, a: "anim-fingers"},
+                {t: "Neural Sync", d: "Thumb to fingers tap at max speed. Syncing CPU.", s: 30, a: "anim-fingers"},
+                {t: "Explosive Tension", d: "Tense fists 1s, then explosive release. Overclock.", s: 30, a: "anim-fingers"}
+            ]
+        },
+        tr: {
+            ready: "KALİBRASYONA HAZIR MISIN?",
+            start: "BAŞLAT",
+            prepare: "HAZIRLAN...",
+            score: "Vurulan Hedef: ",
+            steps: [
+                {t: "Near-Far Toggle", d: "Odak: burun ucu -> uzak nesne. Mercek eğitimi.", s: 30, a: "anim-eye"},
+                {t: "Peripheral Awareness", d: "Merkeze bak, odayı algıla. Avcı modu.", s: 30, a: "anim-eye"},
+                {t: "Rapid Saccades", d: "Monitör köşelerine hızlıca bak.", s: 60, a: "anim-eye"},
+                {t: "Finger Piano", d: "Masada piyano çalar gibi yap. Parmak hızı.", s: 45, a: "anim-fingers"},
+                {t: "Wrist Wave", d: "Bilek dalgası ve döndürme. Akıcılık.", s: 45, a: "anim-fingers"},
+                {t: "Tendon Gliding", d: "Pençe -> Yumruk -> L-şekli. Esneme.", s: 60, a: "anim-fingers"},
+                {t: "Shoulder Squeeze", d: "Kürek kemiklerini sık, omuzları düşür.", s: 30, a: "anim-fingers"},
+                {t: "Neural Sync", d: "Baş parmağı diğerlerine hızlıca dokundur.", s: 30, a: "anim-fingers"},
+                {t: "Explosive Tension", d: "Yumruğu sık ve aniden bırak. Overclock.", s: 30, a: "anim-fingers"}
+            ]
+        }
+    };
+
+    let currentLang = 'ru';
+    let currentStep = 0;
+    let score = 0;
+
+    function setLang(lang) {
+        currentLang = lang;
+        document.getElementById('main-btn').innerText = translations[lang].start;
+        document.getElementById('status-text').innerText = translations[lang].ready;
+        updateScoreDisplay();
+    }
+
+    function updateScoreDisplay() {
+        document.getElementById('score-text').innerText = translations[currentLang].score + score;
+    }
+
+    function spawnTarget() {
+        const target = document.createElement('div');
+        target.className = 'target';
+        target.style.top = Math.random() * 80 + 10 + "%";
+        target.style.left = Math.random() * 80 + 10 + "%";
+        target.onclick = () => {
+            score++;
+            updateScoreDisplay();
+            target.remove();
+            spawnTarget();
+        };
+        document.getElementById('game-area').appendChild(target);
+        setTimeout(() => target.remove(), 3000);
+    }
+
+    async function startWarmup() {
+        document.getElementById('main-btn').style.display = 'none';
+        score = 0;
+        updateScoreDisplay();
+        for(let i=0; i<3; i++) spawnTarget(); // Start mini-game
+
+        const langData = translations[currentLang];
+        
+        for (let step of langData.steps) {
+            // Prepare 3s
+            document.getElementById('status-text').innerText = langData.prepare;
+            document.getElementById('ex-title').innerText = step.t;
+            document.getElementById('ex-desc').innerText = "Get Ready...";
+            await countdown(3);
+
+            // Exercise
+            document.getElementById('status-text').innerText = "ACTION!";
+            document.getElementById('ex-desc').innerText = step.d;
+            document.getElementById('anim-box').className = "exercise-anim " + step.a;
+            await countdown(step.s);
+        }
+        
+        document.getElementById('status-text').innerText = "SYSTEM OPTIMIZED. GL HF!";
+        document.getElementById('main-btn').style.display = 'block';
+    }
+
+    function countdown(seconds) {
+        return new Promise(resolve => {
+            let timeLeft = seconds;
+            const interval = setInterval(() => {
+                const mins = Math.floor(timeLeft / 60);
+                const secs = timeLeft % 60;
+                document.getElementById('timer').innerText = 
+                    `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                    resolve();
+                }
+                timeLeft--;
+            }, 1000);
+        });
+    }
+
+    // Init targets
+    setInterval(() => { if(document.getElementById('main-btn').style.display === 'none') spawnTarget(); }, 2000);
+
+</script>
+</body>
+</html>
